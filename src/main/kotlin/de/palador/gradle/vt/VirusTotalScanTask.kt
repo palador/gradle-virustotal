@@ -51,12 +51,16 @@ open class VirusTotalScanTask : DefaultTask() {
                     || cachedScanReport.scanDate
                     ?.let { SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(it) }
                     .let {
-                        it != null && TimeUnit.MILLISECONDS.toDays(
-                                System.currentTimeMillis() - it.time) >= (config.rescanThresholdDays?.toLong() ?: 1L)
+                        if (it == null) true
+                        else {
+                            val daysSinceLast = TimeUnit.MILLISECONDS.toDays(
+                                    System.currentTimeMillis() - it.time)
+                            daysSinceLast > (config.rescanThresholdDays?.toLong() ?: 1L)
+                        }
                     }
 
             if (!isScanReportOutdated) {
-                logger.lifecycle("    scan report is still up to date!")
+                logger.lifecycle("    scan report is still up to date")
             } else {
                 val latestScanInfo =
                         if (cachedScanInfo != null

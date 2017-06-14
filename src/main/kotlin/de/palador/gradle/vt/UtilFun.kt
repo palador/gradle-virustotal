@@ -47,7 +47,7 @@ fun InputStream.sha256(): ByteArray {
     return md.digest()
 }
 
-fun InputStream.sha256string() = DatatypeConverter.printHexBinary(sha256())!!
+fun InputStream.sha256string() = DatatypeConverter.printHexBinary(sha256())!!.toLowerCase()
 
 fun File.sha256() = inputStream().sha256()
 
