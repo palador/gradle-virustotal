@@ -30,7 +30,7 @@ open class VirusTotalScanTask : DefaultTask() {
     @TaskAction
     fun run() {
         val apikey = config.apikey ?: throw NullPointerException("apikey must be set")
-        val files = config.files ?: throw NullPointerException("files must be set")
+        val files = config.files?.toList() ?: throw NullPointerException("files must be set")
 
         VirusTotalConfig.getConfigInstance()
                 .virusTotalAPIKey = apikey
@@ -38,9 +38,9 @@ open class VirusTotalScanTask : DefaultTask() {
 
 
 
-        files.forEach { file ->
+        files.forEachIndexed { index, file ->
             val sha256 = file.sha256string()
-            logger.lifecycle("process file")
+            logger.lifecycle("process file ${index + 1}/${files.size}")
             logger.lifecycle("    $file")
             logger.lifecycle("    ($sha256)")
 
