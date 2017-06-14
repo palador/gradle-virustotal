@@ -19,7 +19,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'de.palador.gradle:gradle-virustotal:1.1'
+        classpath 'de.palador.gradle:gradle-virustotal:1.2'
     }
 }
 
