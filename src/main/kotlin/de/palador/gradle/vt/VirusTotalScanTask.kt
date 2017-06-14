@@ -40,6 +40,8 @@ open class VirusTotalScanTask : DefaultTask() {
 
         files.forEachIndexed { index, file ->
             val sha256 = file.sha256string()
+
+            logger.lifecycle("")
             logger.lifecycle("process file ${index + 1}/${files.size}")
             logger.lifecycle("    $file")
             logger.lifecycle("    ($sha256)")
@@ -90,11 +92,11 @@ open class VirusTotalScanTask : DefaultTask() {
                     logger.lifecycle("    request scan report...")
 
                     var scanReport: FileScanReport? = null
+                    var lastResult: FileScanReport? = null
                     loop@ for (i in (0..10)) {
-                        val r = vtApi.run("get scan report", logger) { getScanReport(latestScanInfo.resource) }
-                        when (r?.responseCode) {
+                        lastResult = vtApi.run("get scan report", logger) { getScanReport(latestScanInfo.resource) }
+                        when (lastResult?.responseCode) {
                             VirusTotalResponseCodes.Report.error -> {
-                                logger.error("    response code: ERROR")
                                 break@loop
                             }
                             null,
@@ -103,15 +105,23 @@ open class VirusTotalScanTask : DefaultTask() {
                                 Thread.sleep(20L * 1000L)
                             }
                             VirusTotalResponseCodes.Report.present -> {
-                                scanReport = r
+                                scanReport = lastResult
                                 break@loop
                             }
                         }
                     }
 
-                    scanReport?.also {
-                        db.writeScanReport(it, sha256)
-                        logger.lifecycle("    success... ${it.positives} of ${it.total} are positive")
+                    scanReport.also {
+                        if (it != null) {
+                            db.writeScanReport(it, sha256)
+                            logger.lifecycle("    success... ${it.positives} of ${it.total} are positive")
+                        } else {
+                            logger.lifecycle("    ERROR")
+                            lastResult?.also {
+                                logger.lifecycle("        response code: ${it.responseCode}")
+                                logger.lifecycle("        message:       ${it.verboseMessage}")
+                            }
+                        }
                     }
                 }
             }
