@@ -85,7 +85,7 @@ open class VirusTotalScanTask : DefaultTask() {
                     logger.error(
                             "    failed to (re)scan file: unexpected response code: ${latestScanInfo.responseCode}")
                 else {
-                    db.writeScanInfo(latestScanInfo)
+                    db.writeScanInfo(latestScanInfo, sha256)
 
                     logger.lifecycle("    request scan report...")
 
@@ -110,7 +110,7 @@ open class VirusTotalScanTask : DefaultTask() {
                     }
 
                     scanReport?.also {
-                        db.writeScanReport(it)
+                        db.writeScanReport(it, sha256)
                         logger.lifecycle("    success... ${it.positives} of ${it.total} are positive")
                     }
                 }

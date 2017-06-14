@@ -28,13 +28,12 @@ class Database(
         }
     }
 
-    fun writeScanInfo(scanInfo: ScanInfo) {
+    fun writeScanInfo(scanInfo: ScanInfo, sha256: String) {
         if (scanInfo.responseCode != VirusTotalResponseCodes.Scan.queued) {
             logger.error("can't write scan info, because of unexpected responseCode: ${scanInfo.responseCode}")
             return
         }
 
-        val sha256 = scanInfo.sha256!!
         val file = File(scanInfoDir, sha256)
         try {
             scanInfo.serializeJson(file.outputStream())
@@ -54,13 +53,11 @@ class Database(
         }
     }
 
-    fun writeScanReport(scanReport: FileScanReport) {
+    fun writeScanReport(scanReport: FileScanReport, sha256: String) {
         if (scanReport.responseCode != VirusTotalResponseCodes.Report.present) {
             logger.error("can't write report, because of unexpected response code: ${scanReport.responseCode}")
             return
         }
-        val sha256 = scanReport.sha256
-        require(sha256 != null) { "scan report sha256 must be available" }
         val file = File(scanReportDir, sha256)
         try {
             scanReport.serializeJson(file.outputStream())
