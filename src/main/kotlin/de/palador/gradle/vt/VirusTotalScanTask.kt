@@ -46,7 +46,7 @@ open class VirusTotalScanTask : DefaultTask() {
             logger.lifecycle("    ($sha256)")
 
             val sizeMB = Files.size(file.toPath()).toDouble() / (1000.0 * 1000.0)
-            logger.lifecycle("    ${String.format("%.1d MB", sizeMB)}")
+            logger.lifecycle("    ${String.format("%.3f MB", sizeMB)}")
             if (sizeMB > (config.maxFileSizeMB ?: 32.0)) {
                 logger.lifecycle("    ignore file, because it's too big")
                 return@forEachIndexed
