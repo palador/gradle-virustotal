@@ -7,6 +7,7 @@ import com.kanishka.virustotalv2.VirustotalPublicV2Impl
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.File
+import java.nio.file.Files
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
@@ -36,8 +37,6 @@ open class VirusTotalScanTask : DefaultTask() {
                 .virusTotalAPIKey = apikey
         val vtApi: VirustotalPublicV2 = VirustotalPublicV2Impl()
 
-
-
         files.forEachIndexed { index, file ->
             val sha256 = file.sha256string()
 
@@ -45,6 +44,13 @@ open class VirusTotalScanTask : DefaultTask() {
             logger.lifecycle("process file ${index + 1}/${files.size}")
             logger.lifecycle("    $file")
             logger.lifecycle("    ($sha256)")
+
+            val sizeMB = Files.size(file.toPath()).toDouble() / (1000.0 * 1000.0)
+            logger.lifecycle("    ${String.format("%.1d MB", sizeMB)}")
+            if (sizeMB > (config.maxFileSizeMB ?: 32.0)) {
+                logger.lifecycle("    ignore file, because it's too big")
+                return@forEachIndexed
+            }
 
             val cachedScanInfo = db.getScanInfo(sha256)
             val cachedScanReport = db.readScanReport(sha256)
