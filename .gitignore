@@ -1,0 +1,7 @@
+.idea/
+pipeman.iml
+.gradle
+build/
+todo.txt
+hs_err_*.log
+
